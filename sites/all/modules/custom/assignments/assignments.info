@@ -1,0 +1,4 @@
+name = Assignments application
+description = module to handle all math and so forth
+core = 7.x
+package = Custom

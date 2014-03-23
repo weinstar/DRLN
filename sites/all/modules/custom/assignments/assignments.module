@@ -1,0 +1,114 @@
+<?php
+
+
+
+function assignments_block_info(){
+
+  $blocks = array();
+
+
+
+  $blocks['assignments_form'] = array (
+
+      'info' => t('Additions opgave'),
+      'cache' => DRUPAL_CACHE_GLOBAL,
+
+
+  );
+
+  return $blocks;
+
+
+}
+
+function assignments_block_view($delta = '') {
+
+  $block = array();
+
+
+  switch($delta) {
+  	case 'assignments_form':
+
+
+       $block['subject'] = t('Addition assignment');
+
+
+  	  $block['content'] = drupal_get_form('assignments_form');
+  	  break;
+  }
+
+  return $block;
+}
+
+
+function assignments_form($form, $form_state) {
+ global $user;
+    $val1 = rand(1,10);
+    $val2 = rand(1,10);
+    $total = $val1 + $val2;
+    // Store the correct answer safely away from this form
+  if (!variable_get('math_question_answer',FALSE)) {
+    variable_set('math_question_answer', $total);
+  }
+
+  $form['math_question'] = array(
+      '#type' => 'item',
+      '#markup' => 'What is ' . $val1 . ' + ' . $val2 . ', ' .
+      check_plain($user->name) . '?',
+  );
+
+
+  $form['Svar'] = array(
+      '#type' => 'textfield',
+      '#required' => TRUE,
+      '#title' => t("Your answer"),
+      '#description' => t('Must a number'),
+  );
+
+
+
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Svar'),
+  );
+
+  return $form;
+}
+
+
+function assignments_form_validate($form, &$form_state) {
+  // Drupal stows away all of the form elements into
+  // $form_state['values'].  We find our 'friends_email'
+  // element and assign it to a variable for easy
+  // reference.
+
+
+      if (empty($form_state['values']['Svar'])) {
+     form_set_error('Svar', t('This field is required.'));
+  }   // If it's not a valid email, set an error.
+
+}
+
+/*
+ * Define a submit funciton that drupal will
+    * automatically call when submit is pressed (and all validators pass)
+    */
+function assignments_form_submit($form, &$form_state) {
+
+    if ($form_state['values']['Svar'] == variable_get('math_question_answer')) {
+      $msg = t('Good job!');
+      $type = 'status';
+    }
+    else {
+      $msg = t('Try again...');
+      $type = 'error';
+    }
+
+    drupal_set_message(check_plain($msg), $type);
+
+  variable_del('math_question_answer');
+}
+
+
+
+
